@@ -82,7 +82,9 @@ ${pairedList
       ],
       response_format: { type: "json_object" }
     });
-
+    
+console.log("🔍 AI RESPONSE RAW:", JSON.stringify(response, null, 2));
+    
     const raw = response.output[0].content[0].text;
     const data = JSON.parse(raw);
 
