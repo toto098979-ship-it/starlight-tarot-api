@@ -21,7 +21,7 @@ export default async function handler(req) {
   }
 
   const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY   // ★ 여기가 반드시 apiKey!!
+    apiKey: process.env.OPENAI_API_KEY   // ★ 반드시 apiKey
   });
 
   try {
