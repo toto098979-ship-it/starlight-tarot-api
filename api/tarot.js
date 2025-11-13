@@ -20,14 +20,23 @@ export default async function handler(req) {
     });
   }
 
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY   // ← ★ 여기 반드시 apiKey (대문자 K)
+  });
 
   try {
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
       messages: [
-        { role: "system", content: "너는 부드럽고 현실적인 타로리더이다. 카드 의미를 연결해서 자연스럽게 상담하듯이 리딩해줘." },
-        { role: "user", content: `질문: ${question}\n뽑힌 카드: ${JSON.stringify(cards)}` },
+        {
+          role: "system",
+          content:
+            "너는 부드럽고 현실적인 타로리더이다. 카드 의미를 기계식으로 나열하지 말고 자연스럽게 상담 흐름으로 리딩하라.",
+        },
+        {
+          role: "user",
+          content: `질문: ${question}\n뽑힌 카드: ${JSON.stringify(cards)}`,
+        },
       ],
     });
 
@@ -37,7 +46,6 @@ export default async function handler(req) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
     console.error("API Error:", error);
     return new Response(JSON.stringify({ error: "Failed to generate tarot reading" }), {
