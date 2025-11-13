@@ -21,7 +21,7 @@ export default async function handler(req) {
   }
 
   const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY   // ← ★ 여기 반드시 apiKey (대문자 K)
+    apiKey: process.env.OPENAI_API_KEY   // ★ 여기가 반드시 apiKey!!
   });
 
   try {
@@ -30,8 +30,7 @@ export default async function handler(req) {
       messages: [
         {
           role: "system",
-          content:
-            "너는 부드럽고 현실적인 타로리더이다. 카드 의미를 기계식으로 나열하지 말고 자연스럽게 상담 흐름으로 리딩하라.",
+          content: "너는 부드럽고 현실적인 타로리더이다. 카드 의미를 기계식으로 나열하지 말고 자연스럽게 상담 흐름으로 리딩하라.",
         },
         {
           role: "user",
@@ -46,6 +45,7 @@ export default async function handler(req) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+
   } catch (error) {
     console.error("API Error:", error);
     return new Response(JSON.stringify({ error: "Failed to generate tarot reading" }), {
