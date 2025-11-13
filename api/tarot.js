@@ -1,34 +1,48 @@
 import OpenAI from "openai";
 
-export default async function handler(req, res) {
+export const config = {
+  runtime: "edge",
+};
+
+export default async function handler(req) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
+  const { question, cards } = await req.json();
+  if (!question || !cards) {
+    return new Response(JSON.stringify({ error: "Missing question or cards" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
   try {
-    const { question, cards } = req.body;
-
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
       messages: [
-        {
-          role: "system",
-          content: "너는 따뜻하고 부드러운 상담 스타일의 전문 타로 리더다."
-        },
-        {
-          role: "user",
-          content: `질문: ${question}\n카드: ${JSON.stringify(cards)}`
-        }
-      ]
+        { role: "system", content: "너는 부드럽고 현실적인 타로리더이다. 카드 의미를 연결해서 자연스럽게 상담하듯이 리딩해줘." },
+        { role: "user", content: `질문: ${question}\n뽑힌 카드: ${JSON.stringify(cards)}` },
+      ],
     });
 
-    res.status(200).json({ result: completion.choices[0].message.content });
-  } catch (err) {
-    console.error("API ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    const result = completion.choices[0].message.content;
+
+    return new Response(JSON.stringify({ result }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } catch (error) {
+    console.error("API Error:", error);
+    return new Response(JSON.stringify({ error: "Failed to generate tarot reading" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
